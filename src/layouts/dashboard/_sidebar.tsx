@@ -24,8 +24,16 @@ const menuItems = [
     href: routes.loan,
   },
   {
+    name: 'Provide Liquidity',
+    href: routes.provideLiquidity,
+  },
+  {
     name: 'My Earnings',
     href: routes.myEarnings,
+  },
+  {
+    name: 'Exchange',
+    href: routes.exchange,
   },
   {
     name: 'Rewards',
@@ -35,10 +43,10 @@ const menuItems = [
     name: 'My loan',
     href: routes.myLoan,
   },
-  {
-    name: 'Language',
-    href: routes.myLoan,
-  },
+  // {
+  //   name: 'Language',
+  //   href: routes.myLoan,
+  // },
   {
     name: 'Help',
     href: routes.myLoan,

@@ -210,7 +210,7 @@ const LoanDetails: NextPageWithLayout = () => {
                   <div className="mt-8">
                     <button
                       type="button"
-                      className="flex justify-center rounded-full bg-green-600 px-4 py-2 text-xl font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="flex justify-center rounded-full bg-[#1EBE70] px-4 py-2 text-xl font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       style={{ width: '100%' }}
                       onClick={closeModal}
                     >

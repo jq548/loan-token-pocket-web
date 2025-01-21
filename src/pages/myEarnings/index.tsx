@@ -1,5 +1,6 @@
 import type { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
+import { useRouter } from 'next/router';
 
 const MyEarnings: NextPageWithLayout = () => {
   const list = [
@@ -24,6 +25,11 @@ const MyEarnings: NextPageWithLayout = () => {
       cumulativeIncome: '456.35',
     },
   ];
+
+  const router = useRouter();
+  const handleToWithdraw = () => {
+    router.push('/withdraw');
+  };
   return (
     <>
       <div className="mx-auto max-w-7xl px-2">
@@ -35,7 +41,10 @@ const MyEarnings: NextPageWithLayout = () => {
               <span className="ml-2 text-xl">USDT</span>
             </div>
           </div>
-          <div className="flex items-center rounded-xl bg-[#1EBE70] p-3 text-base font-medium text-white">
+          <div
+            className="flex items-center rounded-xl bg-[#1EBE70] p-3 text-base font-medium text-white"
+            onClick={handleToWithdraw}
+          >
             Withdraw
           </div>
         </div>

@@ -53,6 +53,46 @@ input:focus {
   box-shadow: none !important;
 }
 
+.timeline {
+  position: relative;
+  /* padding: 20px 40px; */
+}
+
+.timeline:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #1EBE70;
+  transform: translateX(-50%);
+}
+
+.timeline-item {
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  background-color: #1EBE70;
+  border-radius: 50%;
+}
+
+.timeline-content {
+  margin-left: 24px; /* Adjust this value based on your layout */
+}
+
 /* html,
 body {
   padding: 0;

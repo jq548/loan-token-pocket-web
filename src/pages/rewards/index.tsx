@@ -1,7 +1,9 @@
 import type { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
+import { useRouter } from 'next/router';
 
 const MyEarnings: NextPageWithLayout = () => {
+  const router = useRouter();
   const list = [
     {
       sevenDayLockedStorage: '2023-08-16 17:21',
@@ -28,6 +30,12 @@ const MyEarnings: NextPageWithLayout = () => {
       releaseRules: 'linear release within 90 days',
     },
   ];
+  const handleToConversion = () => {
+    router.push('/conversionHistory');
+  };
+  const handleToReceiveAwardHistory = () => {
+    router.push('/receiveAward');
+  };
   return (
     <div className="mx-auto max-w-7xl px-2 pb-4">
       <h1 className="mb-4 text-4xl font-bold text-[#18191A]">Reward</h1>
@@ -69,10 +77,16 @@ const MyEarnings: NextPageWithLayout = () => {
               </div>
             </div>
             <div className="mt-4 flex justify-end">
-              <div className="flex items-center rounded-full border border-[#000000] px-6 py-2 text-sm font-medium text-[#191722]">
+              <div
+                className="flex items-center rounded-full border border-[#000000] px-6 py-2 text-sm font-medium text-[#191722]"
+                onClick={handleToReceiveAwardHistory}
+              >
                 Receive
               </div>
-              <div className="ml-4 inline-flex items-center rounded-full border border-[#000000] px-6 py-2 text-sm font-medium text-[#191722]">
+              <div
+                className="ml-4 inline-flex items-center rounded-full border border-[#000000] px-6 py-2 text-sm font-medium text-[#191722]"
+                onClick={handleToConversion}
+              >
                 Details
               </div>
             </div>

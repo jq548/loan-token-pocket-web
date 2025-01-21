@@ -1,6 +1,6 @@
 import type { AppProps } from 'next/app';
 import type { NextPageWithLayout } from '@/types';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Hydrate, QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
@@ -57,7 +57,7 @@ function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
             decryptPermission={DecryptPermission.OnChainHistory}
             programs={['credits.aleo']}
             autoConnect={false}
-            network={ WalletAdapterNetwork.TestnetBeta }
+            network={WalletAdapterNetwork.TestnetBeta}
           >
             <WalletModalProvider>
               <ThemeProvider
