@@ -1,15 +1,4 @@
-# Leo Wallet Demo
-
-This is a NextJS-based demo site for the [Aleo Wallet Adapter](https://github.com/demox-labs/aleo-wallet-adapter) to be used on the [Aleo blockchain](https://aleo.org). <br>
-
-The goal of this demo is to show how to build a website that integrates with Aleo Wallets like the [Leo Wallet](https://leo.app)
-
-
-<hr />
-
-## Demo 
-
-You can find [this site live here](https://demo.leo.app)
+# DINAR 
 
 ## 🚀 Quick Start
 
@@ -20,19 +9,13 @@ Ensure you have:
 
 Then run the following:
 
-### 1) Clone the repository
-
-```bash
-git clone https://github.com/demox-labs/leo-wallet-demo && cd leo-wallet-demo
-```
-
-### 2) Install dependencies
+### 1) Install dependencies
 
 ```bash
 yarn
 ```
 
-### 3) Development
+### 2) Development
 
 Run a local server on localhost:3000.
 
@@ -40,9 +23,7 @@ Run a local server on localhost:3000.
 yarn dev
 ```
 
-
-
-### 4) Build
+### 3) Build
 
 ```bash
 yarn build

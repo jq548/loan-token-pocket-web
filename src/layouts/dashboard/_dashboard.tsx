@@ -6,26 +6,17 @@ import { useIsMounted } from '@/lib/hooks/use-is-mounted';
 import { useDrawer } from '@/components/drawer-views/context';
 import Sidebar from '@/layouts/dashboard/_sidebar';
 import React, { FC, useMemo } from 'react';
-import { WalletMultiButton } from '@demox-labs/aleo-wallet-adapter-reactui';
 import logo from '@/assets/images/global/logo.png';
-import walletIcon from '@/assets/images/global/wallet-icon.png';
 import Image from '@/components/ui/image';
+import walletIcon from '@/assets/images/global/wallet-icon.png';
+import { useWeb3 } from "@/contexts/Web3Context";
 
-require('@demox-labs/aleo-wallet-adapter-reactui/dist/styles.css');
-
-function HeaderRightArea() {
-  return (
-    <div>
-      <WalletMultiButton className="bg-[#1253fa]" />
-    </div>
-  );
-}
 
 export function Header() {
   const { openDrawer } = useDrawer();
   const isMounted = useIsMounted();
   let windowScroll = useWindowScroll();
-  let [isOpen, setIsOpen] = useState(false);
+  const { web3, account, connectWallet, disconnectWallet } = useWeb3();
 
   return (
     <nav
@@ -47,17 +38,10 @@ export function Header() {
         </div>
 
         <div className="flex items-center">
-          <button className="mr-4 flex rounded-full border border-gray-300 bg-white px-3 py-2 text-xs text-gray-700">
-            <Image
-              width={16}
-              height={16}
-              src={walletIcon}
-              alt="wallet-icon"
-              style={{ marginRight: '2px' }}
-            ></Image>
-            Connect Wallet
-            {/* <HeaderRightArea /> */}
-          </button>
+        <button onClick={connectWallet} className="mr-4 flex rounded-full border border-gray-300 bg-white px-3 py-2 text-xs text-gray-700">
+          <Image width={16} height={16} src={walletIcon} alt="wallet-icon"></Image>    
+          {account ? `${account.slice(0, 6)}...${account.slice(-4)}` : "Connect Wallet"}
+        </button>
           <Hamburger
             isOpen={false}
             onClick={() => openDrawer('DASHBOARD_SIDEBAR')}

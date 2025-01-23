@@ -2,10 +2,28 @@ import type { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
 import Image from '@/components/ui/image';
 import QuestionIcon from '@/assets/images/global/question-icon.png';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useWeb3 } from '@/contexts/Web3Context';
 
 const ProvideLiquidity: NextPageWithLayout = () => {
   const [index, setIndex] = useState(0);
+  const [usdtBalance, setUsdtBalance] = useState(0);
+  const { web3, account, usdtContract, lpContract, loanContract, connectWallet, disconnectWallet } = useWeb3();
+
+  const fetchUsdtBalance = async () => {
+    if (!web3 || !account || !usdtContract) {
+      return;
+    }
+    console.log(process.env.LP_CONTRACT);
+return;
+    try {
+      const result = await usdtContract.methods.balanceOf(account).call();
+      console.log("合约返回值：", result);
+    } catch (error) {
+      console.error("调用合约方法失败：", error);
+    }
+  };
+
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col justify-between px-2">
       <div>
@@ -78,12 +96,12 @@ const ProvideLiquidity: NextPageWithLayout = () => {
             />
             <div className="ml-2 flex">
               <div className="pt-2 text-[#18191A]">USDT</div>
-              <button className="ml-4 rounded-lg bg-[#1EBE70] px-6 font-bold text-white">
+              <button onClick={fetchUsdtBalance} className="ml-4 rounded-lg bg-[#1EBE70] px-6 font-bold text-white">
                 MAX
               </button>
             </div>
           </div>
-          <div className="mt-4 text-gray-600">Balance: 100USDT</div>
+          <div className="mt-4 text-gray-600">Balance: {usdtBalance}USDT</div>
         </div>
 
         <div className="mt-6">

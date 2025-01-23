@@ -8,36 +8,18 @@ import { isMobile as reactDetectIsMobile } from 'react-device-detect';
 import { ThemeProvider } from 'next-themes';
 import ModalsContainer from '@/components/modal-views/container';
 import DrawersContainer from '@/components/drawer-views/container';
-import SettingsButton from '@/components/settings/settings-button';
-import SettingsDrawer from '@/components/settings/settings-drawer';
 // base css file
 import 'swiper/css';
 import '@/assets/css/scrollbar.css';
 import '@/assets/css/globals.css';
 import '@/assets/css/range-slider.css';
-import { LeoWalletAdapter } from '@demox-labs/aleo-wallet-adapter-leo';
-import {
-  DecryptPermission,
-  WalletAdapterNetwork,
-} from '@demox-labs/aleo-wallet-adapter-base';
-import { WalletProvider } from '@demox-labs/aleo-wallet-adapter-react';
-import { WalletModalProvider } from '@demox-labs/aleo-wallet-adapter-reactui';
+import { Web3Provider } from "@/contexts/Web3Context";
 
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
 function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
-  const wallets = useMemo(
-    () => [
-      new LeoWalletAdapter({
-        appName: 'Loan Leo',
-        isMobile: reactDetectIsMobile,
-        mobileWebviewUrl: 'https://wings.tcds.ltd',
-      }),
-    ],
-    []
-  );
   const [queryClient] = useState(() => new QueryClient());
   const getLayout = Component.getLayout ?? ((page) => page);
   //could remove this if you don't need to page level layout
@@ -52,25 +34,17 @@ function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
       </Head>
       <QueryClientProvider client={queryClient}>
         <Hydrate state={pageProps.dehydratedState}>
-          <WalletProvider
-            wallets={wallets}
-            decryptPermission={DecryptPermission.OnChainHistory}
-            programs={['credits.aleo']}
-            autoConnect={false}
-            network={WalletAdapterNetwork.TestnetBeta}
-          >
-            <WalletModalProvider>
-              <ThemeProvider
+        <ThemeProvider
                 attribute="class"
                 enableSystem={false}
                 defaultTheme="dark"
               >
-                {getLayout(<Component {...pageProps} />)}
+                  <Web3Provider>
+                    {getLayout(<Component {...pageProps} />)}
+                  </Web3Provider>
                 <ModalsContainer />
                 <DrawersContainer />
               </ThemeProvider>
-            </WalletModalProvider>
-          </WalletProvider>
         </Hydrate>
         <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
       </QueryClientProvider>
