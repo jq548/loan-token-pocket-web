@@ -7,10 +7,12 @@ import Image from '@/components/ui/image';
 import { useState, Fragment } from 'react';
 import { useRouter } from 'next/router';
 import { Dialog, Transition } from '@/components/ui/dialog';
+import { useWeb3 } from '@/contexts/Web3Context';
 
 const LoanDetails: NextPageWithLayout = () => {
   const router = useRouter();
   let [isOpen, setIsOpen] = useState(false);
+  const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
 
   function closeModal() {
     setIsOpen(false);
@@ -69,8 +71,37 @@ const LoanDetails: NextPageWithLayout = () => {
     },
   ];
 
-  const handlReturn = () => {
+  const handlReturn = async () => {
     // return back to previous page
+    if (!web3 || !account || !loanContract || !usdtContract || !lpContract) {
+      return;
+    }
+    try {
+      const amount = 100; // amount that need pay back
+      const loanId = 1; // id of loan
+      
+      const lpBalanceResult = await lpContract.methods.balanceOf(account).call();
+      const lpBalance = web3.utils.fromWei(lpBalanceResult, "ether");
+      const floatBalance = parseFloat(lpBalance);
+      
+      if (floatBalance < amount) {
+        console.log("insuffient balance");
+        return;
+      }
+      
+      const weiAmount = web3.utils.toWei(amount, "ether");
+      const allowance = await lpContract.methods.allowance(account, loanContract.options.address).call();
+      if (allowance < weiAmount) {
+        const approveResult = await lpContract.methods.approve(loanContract.options.address, weiAmount).send({ from: account });
+        console.log(approveResult);
+      }
+      const paybackResult = await loanContract.methods.payBack(loanId).send({ from: account });
+      console.log(paybackResult);
+
+    } catch (error) {
+      console.log("fetch exchangeable error: ", error);
+    }
+
     router.back();
   };
 

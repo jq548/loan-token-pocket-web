@@ -6,10 +6,12 @@ import Image from '@/components/ui/image';
 import { useState, Fragment } from 'react';
 import { useRouter } from 'next/router';
 import { Dialog, Transition } from '@/components/ui/dialog';
+import { useWeb3 } from '@/contexts/Web3Context';
 
 const Withdrawal: NextPageWithLayout = () => {
   const router = useRouter();
   let [isOpen, setIsOpen] = useState(false);
+  const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
 
   function closeModal() {
     setIsOpen(false);
@@ -18,8 +20,18 @@ const Withdrawal: NextPageWithLayout = () => {
   function openModal() {
     setIsOpen(true);
   }
-  const handlReturn = () => {
+  const handlReturn = async () => {
     // return back to previous page
+    if (!web3 || !account || !loanContract || !usdtContract || !lpContract) {
+      return;
+    }
+    try {
+      const provideId = 1; // provide id
+      const redeemResult = await loanContract.methods.retrieveUsdt(provideId).send({ from: account});
+      console.log(redeemResult);
+    } catch (error) {
+      console.log("fetch exchangeable error: ", error);
+    }
     router.back();
   };
 
