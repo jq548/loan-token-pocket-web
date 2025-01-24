@@ -2,27 +2,72 @@ import type { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
 import Image from '@/components/ui/image';
 import QuestionIcon from '@/assets/images/global/question-icon.png';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import { useWeb3 } from '@/contexts/Web3Context';
 
 const ProvideLiquidity: NextPageWithLayout = () => {
   const [index, setIndex] = useState(0);
   const [usdtBalance, setUsdtBalance] = useState(0);
-  const { web3, account, usdtContract, lpContract, loanContract, connectWallet, disconnectWallet } = useWeb3();
+  const [input, setInput] = useState("");
+  const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
 
   const fetchUsdtBalance = async () => {
+    if (!account) {
+      setUsdtBalance(0);
+    }
     if (!web3 || !account || !usdtContract) {
       return;
     }
-    console.log(process.env.LP_CONTRACT);
-return;
     try {
       const result = await usdtContract.methods.balanceOf(account).call();
-      console.log("合约返回值：", result);
+      const formattedBalance = web3.utils.fromWei(result, "ether");
+      setUsdtBalance(parseFloat(formattedBalance));
     } catch (error) {
-      console.error("调用合约方法失败：", error);
+      console.error("call failed: ", error);
     }
   };
+
+  const submitExchange = async () => {
+    if (!web3 || !account || !usdtContract || !loanContract) {
+      return;
+    }
+    
+    
+    try {
+//       const p0 = await loanContract.methods.params(0).call();
+//       const p1 = await loanContract.methods.params(1).call();
+//       const p2 = await loanContract.methods.params(2).call();
+//       const min = await loanContract.methods.params(3).call();
+//       const max = await loanContract.methods.params(4).call();
+//       console.log("p0: " + web3.utils.fromWei(p0, "ether").toString());
+//       console.log("p1: " + web3.utils.fromWei(p1, "ether").toString());
+//       console.log("p2: " + web3.utils.fromWei(p2, "ether").toString());
+//       console.log("min: " + web3.utils.fromWei(min, "ether").toString());
+//       console.log("max: " + web3.utils.fromWei(max, "ether").toString());
+// return;
+      const value = parseFloat(input);
+      const amount = web3.utils.toWei(input, "ether");
+      const duration = (([7,30,60,90,180][index])*24*3600).toString();
+      const allowance = await usdtContract.methods.allowance(account, loanContract.options.address).call();
+      if (allowance < amount) {
+        const approveResult = await usdtContract.methods.approve(loanContract.options.address, amount).send({ from: account });
+        console.log(approveResult);
+      }
+      const exchangeResult = await loanContract.methods.provideUsdt(amount, duration).send({ from: account });
+      console.log(exchangeResult);
+    }
+    catch (error) {
+      console.error("call failed: ", error);
+    }
+  }
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(event.target.value);
+  };
+
+  useEffect(() => {
+    fetchUsdtBalance();
+  }, [account]);
 
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col justify-between px-2">
@@ -93,6 +138,7 @@ return;
               step="1"
               className="w-full border-0 bg-[transparent] py-2 px-3 text-[#18191A]"
               placeholder="minimum 100USDT"
+              onChange={handleInputChange}
             />
             <div className="ml-2 flex">
               <div className="pt-2 text-[#18191A]">USDT</div>
@@ -133,7 +179,7 @@ return;
         </div>
       </div>
 
-      <button className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white">
+      <button onClick={submitExchange} className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white">
         Confirm
       </button>
     </div>

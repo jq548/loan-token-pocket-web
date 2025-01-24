@@ -7,8 +7,9 @@ import TimerIcon from '@/assets/images/exchange/exchange-timer.png';
 import ChangeIcon from '@/assets/images/exchange/exchange-change-icon.png';
 import Change2Icon from '@/assets/images/exchange/exchange-change-icon-2.png';
 import Image from '@/components/ui/image';
-import { useState, Fragment } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { Dialog, Transition } from '@/components/ui/dialog';
+import { useWeb3 } from '@/contexts/Web3Context';
 
 const Exchange: NextPageWithLayout = () => {
   const [adiQuantity, setAdiQuantity] = useState('');
@@ -16,11 +17,71 @@ const Exchange: NextPageWithLayout = () => {
   const [showModal, setShowModal] = useState(false);
 
   const [confirmModal, setConfirmModal] = useState(false);
+  const [usdtBalance, setUsdtBalance] = useState(0);
+  const [lpBalance, setLpBalance] = useState(0);
+  const [lpToUsdt, setLpToUsdt] = useState(true); // true: lp to usdt, false: usdt to lp
+  const [maxExchangeableUsdt, setMaxExchangeableUsdt] = useState(0); // usdt to lp, limit by contract
+  const [maxExchangeableLp, setMaxExchangeableLp] = useState(0); // lp to usdt, limit by contract
+  const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
 
   const handleMaxClick = () => {
     setAdiQuantity('211253.32');
     setUsdtQuantity('211253.32');
   };
+
+  const fetchExchangeable = async () => {
+    if (!web3 || !account || !loanContract || !usdtContract || !lpContract) {
+      return;
+    }
+    try {
+      const usdtBalanceResult = await usdtContract.methods.balanceOf(account).call();
+      const usdtBalance = web3.utils.fromWei(usdtBalanceResult, "ether");
+      setUsdtBalance(parseFloat(usdtBalance));
+
+      const lpBalanceResult = await lpContract.methods.balanceOf(account).call();
+      const lpBalance = web3.utils.fromWei(lpBalanceResult, "ether");
+      setLpBalance(parseFloat(lpBalance));
+
+      const maxExchangeableLpToUsdtResult = await loanContract.methods.maxExchangeLpUsdt(true).call();
+      const maxExchangeableLpToUsdt = web3.utils.fromWei(maxExchangeableLpToUsdtResult, "ether");
+      setMaxExchangeableLp(parseFloat(maxExchangeableLpToUsdt));
+
+      const maxExchangeableUsdtToLpResult = await loanContract.methods.maxExchangeLpUsdt(false).call();
+      const maxExchangeableUsdtToLp = web3.utils.fromWei(maxExchangeableUsdtToLpResult, "ether");
+      setMaxExchangeableUsdt(parseFloat(maxExchangeableUsdtToLp));
+      console.log("fetch complete: ", usdtBalance, lpBalance, maxExchangeableLpToUsdt, maxExchangeableUsdtToLp);
+    } catch (error) {
+      console.log("fetch exchangeable error: ", error);
+    }
+  };
+
+  const submitExchange = async () => {
+    if (!web3 || !account || !loanContract || !usdtContract || !lpContract) {
+      return;
+    }
+    try {
+      const checkAmount = parseFloat(lpToUsdt ? adiQuantity : usdtQuantity);
+      if (checkAmount <= 0 || checkAmount > (lpToUsdt ? lpBalance : usdtBalance) || checkAmount > (lpToUsdt ? maxExchangeableLp : maxExchangeableUsdt)) {
+        console.log("exceed limit");
+        return;
+      }
+      const amount = web3.utils.toWei(lpToUsdt ? adiQuantity : usdtQuantity, "ether");
+      const allowance = await (lpToUsdt ? lpContract : usdtContract).methods.allowance(account, loanContract.options.address).call();
+      if (allowance < amount) {
+        const approveResult = await (lpToUsdt ? lpContract : usdtContract).methods.approve(loanContract.options.address, amount).send({ from: account });
+        console.log(approveResult);
+      }
+      const exchangeResult = await loanContract.methods.exchangeLpUsdt(lpToUsdt, amount).send({ from: account });
+      console.log(exchangeResult);
+    } catch (error) {
+      console.log("submit error: ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchExchangeable();
+    }, [account]);
+
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col px-2 pb-4">
       <div className="flex items-center justify-between">
@@ -98,10 +159,10 @@ const Exchange: NextPageWithLayout = () => {
               Exchange rate
             </span>
             <span className="ml-2 text-sm tracking-tighter text-[#FE4C30]">
-              1 : 0.99
+              1 : 1
             </span>
           </div>
-          <div className="text-xs text-[#8A9199]">1USDT=0.99 ADI</div>
+          <div className="text-xs text-[#8A9199]">1 USDT = 1 ADI</div>
         </div>
 
         <button
@@ -211,7 +272,7 @@ const Exchange: NextPageWithLayout = () => {
                       <button
                         type="button"
                         className="ml-2 flex w-1/2 justify-center rounded-full bg-[#1EBE70] px-4 py-2 text-xl font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        onClick={() => setConfirmModal(true)}
+                        onClick={submitExchange}
                       >
                         Confirm
                       </button>

@@ -16,7 +16,7 @@ export function Header() {
   const { openDrawer } = useDrawer();
   const isMounted = useIsMounted();
   let windowScroll = useWindowScroll();
-  const { web3, account, connectWallet, disconnectWallet } = useWeb3();
+  const { account, connectWallet } = useWeb3();
 
   return (
     <nav
