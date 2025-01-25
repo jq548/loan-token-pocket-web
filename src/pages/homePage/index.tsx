@@ -5,7 +5,7 @@ import { useRef, useEffect, useState } from 'react';
 import BannerIcon from '@/assets/images/loan/banner.png';
 import WarningIcon from '@/assets/images/loan/warning-icon-2.png';
 import Image from '@/components/ui/image';
-import { circleBarConfig, lineConfig } from './chartsConfig';
+import { circleBarConfig, lineConfig } from '../../config/homeChartsConfig';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart } from 'echarts/charts';
 import {

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useRef, useEffect, useState, Fragment } from 'react';
 import Image from '@/components/ui/image';
 import BackIcon from '@/assets/images/global/back-icon.png';
-import { circleBarConfig } from './chartsConfig';
+import { circleBarConfig } from '../../config/supplementChartsConfig';
 import { Dialog, Transition } from '@headlessui/react';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
