@@ -32,7 +32,7 @@ const WithdrawHistory: NextPageWithLayout = () => {
   };
 
   useEffect(() => {
-    // getProvideIncomeWithrawRecordApi();
+    getProvideIncomeWithrawRecordApi();
   }, []);
 
   const handlReturn = () => {

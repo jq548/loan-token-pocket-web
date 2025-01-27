@@ -77,7 +77,7 @@ const ConversionHistory: NextPageWithLayout = () => {
   };
 
   useEffect(() => {
-    // getExchangeRecordApi();
+    getExchangeRecordApi();
   });
 
   const handlReturn = () => {

@@ -46,7 +46,7 @@ const MyEarnings: NextPageWithLayout = () => {
   };
 
   useEffect(() => {
-    // getProvideRecordApi();
+    getProvideRecordApi();
   });
 
   const router = useRouter();
