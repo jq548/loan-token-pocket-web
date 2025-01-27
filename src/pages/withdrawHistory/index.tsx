@@ -1,56 +1,39 @@
 // withdraw history
+import { useEffect, useState } from 'react';
 import type { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
 import BackIcon from '@/assets/images/global/back-icon.png';
 import CopyIcon from '@/assets/images/global/copy-icon.png';
 import Image from '@/components/ui/image';
+import { getProvideIncomeWithrawRecord } from '@/apis';
 import { useRouter } from 'next/router';
 
 const WithdrawHistory: NextPageWithLayout = () => {
   const router = useRouter();
-  const historyList = [
+  const [historyList, setHistoryList] = useState([
     {
-      date: '2025-12-12',
-      amount: '-5.5',
-      hash: 'sa4d56sa4da8***ads465a4d56',
+      provider: '0',
+      amount: '0',
+      hash: '0',
+      at: 0,
     },
-    {
-      date: '2025-12-13',
-      amount: '-5.5',
-      hash: 'sa4d56sa4da8***ads465a4d57',
-    },
-    {
-      date: '2025-12-14',
-      amount: '-5.5',
-      hash: 'sa4d56sa4da8***ads465a4d58',
-    },
-    {
-      date: '2025-12-15',
-      amount: '-5.5',
-      hash: 'sa4d56sa4da8***ads465a4d59',
-    },
-    {
-      date: '2025-12-16',
-      amount: '-5.5',
-      hash: 'sa4d56sa4da8***ads465a4d60',
-    },
-    {
-      date: '2025-12-17',
-      amount: '-5.5',
-      hash: 'sa4d56sa4da8***ads465a4d61',
-    },
-    {
-      date: '2025-12-18',
-      amount: '-5.5',
-      hash: 'sa4d56sa4da8***ads465a4d62',
-    },
-  ];
+  ]);
+  const getProvideIncomeWithrawRecordApi = async () => {
+    const res = await getProvideIncomeWithrawRecord({
+      address: '0x301e5039A65cbf62599dD74F397B1Abdf4eAaAaf',
+    });
+    setHistoryList(res);
+  };
 
   const handleCopy = (hash: string) => {
     // copy to clipboard
     navigator.clipboard.writeText(hash);
     alert('Copied to clipboard');
   };
+
+  useEffect(() => {
+    // getProvideIncomeWithrawRecordApi();
+  }, []);
 
   const handlReturn = () => {
     // return back to previous page
@@ -74,7 +57,7 @@ const WithdrawHistory: NextPageWithLayout = () => {
               key={item.hash}
             >
               <div className="text-sm tracking-tighter text-[#18191A]">
-                {item.date}
+                {item.at}
               </div>
               <div className="mt-1 flex items-end font-bold text-[#18191A]">
                 <span className="text-2xl">{item.amount}</span>
@@ -86,13 +69,13 @@ const WithdrawHistory: NextPageWithLayout = () => {
                 </div>
                 <div>
                   <span className="mr-1 text-sm tracking-tighter text-[#18191A]">
-                    {item.hash}
+                    {item.provider}
                   </span>
                   <Image
                     width={12}
                     height={12}
                     src={CopyIcon}
-                    onClick={() => handleCopy(item.hash)}
+                    onClick={() => handleCopy(item.provider)}
                   ></Image>
                 </div>
               </div>

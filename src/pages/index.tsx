@@ -1,90 +1,244 @@
+/*
+ * @Description  : 文件描述
+ * @Author       : tangxiangping
+ * @Date         : 2025-01-25 16:05:05
+ */
+// homgPage
 import type { NextPageWithLayout } from '@/types';
-import { NextSeo } from 'next-seo';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
-import Button from '@/components/ui/button';
-import routes from '@/config/routes';
-import { WalletMultiButton } from '@demox-labs/aleo-wallet-adapter-reactui';
+import { useRef, useEffect, useState } from 'react';
+import BannerIcon from '@/assets/images/loan/banner.png';
+import WarningIcon from '@/assets/images/loan/warning-icon-2.png';
+import Image from '@/components/ui/image';
+import { circleBarConfig, lineConfig } from '../config/homeChartsConfig';
+import * as echarts from 'echarts/core';
+import { BarChart, LineChart } from 'echarts/charts';
+import { getOverview } from '@/apis';
+import { useRouter } from 'next/router';
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  PolarComponent,
+  GridComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
 
-type SectionProps = {
-  title: string;
-  bgColor: string;
-  sectionWidth?: string;
-};
+echarts.use([
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  BarChart,
+  CanvasRenderer,
+  PolarComponent,
+  LineChart,
+  GridComponent,
+]);
+interface HomePageOverviewType {
+  total_provide_liquid: string;
+  total_loaned: string;
+  liquid_used_rate: string;
+  provide_liquid_reward_rate: string;
+  total_deposit_aleo: string;
+  banners: string[];
+  history_rate: {
+    rate: string;
+    at: number;
+    days: number;
+  }[];
+}
+const HomePage: NextPageWithLayout = () => {
+  let circleBarChartInstance: any;
+  const router = useRouter();
+  let lineChartInstance: any;
+  const circleBarChartRef = useRef(null);
+  const lineChartRef = useRef(null);
 
-export function Section({
-  title,
-  bgColor,
-  children,
-  sectionWidth,
-}: React.PropsWithChildren<SectionProps>) {
+  const [activeTab, setActiveTab] = useState('1m');
+  const [overviewState, setOverviewState] = useState<HomePageOverviewType>({
+    total_provide_liquid: '',
+    total_loaned: '',
+    liquid_used_rate: '',
+    provide_liquid_reward_rate: '',
+    total_deposit_aleo: '',
+    banners: [],
+    history_rate: [],
+  });
+
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+  };
+
+  const getOverviewInfo = async () => {
+    const res: any = await getOverview();
+    setOverviewState(res);
+    circleBarChartInstance &&
+      circleBarChartInstance.setOption(
+        circleBarConfig(Number(res.liquid_used_rate))
+      );
+    const xData = res.history_rate.map((item: any) =>
+      new Date(item.at).toDateString()
+    );
+    const seriesData = res.history_rate.map(
+      (item: any) => Number(item.rate) * 100
+    );
+    const params = { xData, seriesData };
+    lineChartInstance.setOption(lineConfig(params));
+  };
+
+  const handleToPL = () => {
+    router.push('/provideLiquidity');
+  };
+
+  useEffect(() => {
+    if (!circleBarChartRef.current || !lineChartRef.current) return;
+
+    circleBarChartInstance = echarts.init(circleBarChartRef.current);
+    lineChartInstance = echarts.init(lineChartRef.current);
+
+    circleBarChartInstance.setOption(circleBarConfig());
+    lineChartInstance.setOption(lineConfig());
+
+    window.addEventListener('resize', () => {
+      circleBarChartInstance.resize();
+      lineChartInstance.resize();
+    });
+
+    getOverviewInfo();
+
+    return () => {
+      window.removeEventListener('resize', () => {
+        circleBarChartInstance.resize();
+        lineChartInstance.resize();
+      });
+      circleBarChartInstance.dispose();
+      lineChartInstance.dispose();
+    };
+  }, []);
   return (
-    <div className="mb-3">
-      <div className={`rounded-lg ${bgColor}`}>
-        <div className="relative flex items-center justify-between gap-4 p-4">
-          <div className={`items-center ltr:mr-6 rtl:ml-6 ${sectionWidth}`}>
-            <div>
-              <span className="block text-xs font-medium uppercase tracking-wider text-gray-900 dark:text-white sm:text-sm">
-                {title}
-              </span>
-              <span className="mt-1 hidden text-xs tracking-tighter text-gray-600 dark:text-gray-400 sm:block">
-                {children}
-              </span>
-            </div>
-          </div>
+    <div className="h-full rounded-3xl">
+      <main className="w-full max-w-screen-lg rounded-lg">
+        <div className="mb-3 rounded-3xl">
+          <Image className="w-full" height={600} src={BannerIcon}></Image>
         </div>
-      </div>
+
+        <section className="mb-4 pb-4">
+          <div className="rounded-3xl bg-white p-6">
+            <div className="mb-6 text-3xl font-bold tracking-tighter text-[#18191A]">
+              Sunpply info
+            </div>
+
+            <div className="mb-6 flex w-full">
+              {/* charts circleBarConfig show */}
+              <div className="mr-4 w-1/3">
+                <div
+                  ref={circleBarChartRef}
+                  style={{ width: '100%', height: '100%' }}
+                ></div>
+              </div>
+              {/* field info */}
+              <div className="w-2/3">
+                <p className="mb-2 text-sm tracking-tighter text-[#737980]">
+                  Total supplied
+                </p>
+                <p className="mb-2 text-base font-bold tracking-tighter text-[#18191A]">
+                  ${overviewState.total_loaned} of $
+                  {overviewState.total_provide_liquid}
+                </p>
+                <p className="mb-2 text-sm tracking-tighter text-[#737980]">
+                  Total Mortqaqe quantity
+                </p>
+                <p className="text-base font-bold tracking-tighter text-[#18191A]">
+                  {overviewState.total_deposit_aleo} ALEO
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-around rounded-2xl border border-[#E8EAEB] bg-[#F3F5F6] px-2 py-4">
+              <div className="flex flex-col items-center justify-center">
+                <div className="text-3xl font-bold tracking-tighter text-[#FA9825]">
+                  {Number(overviewState.provide_liquid_reward_rate) * 100}
+                </div>
+                <div className="mt-2 flex items-center">
+                  <span className="mr-2 tracking-tighter text-[#8A9199]">
+                    AOY,variable
+                  </span>
+                  <Image width={16} height={16} src={WarningIcon}></Image>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center justify-center">
+                <div className="flex items-start font-bold tracking-tighter text-[#18191A]">
+                  <span className="text-xl">$</span>
+                  <span className="text-3xl">
+                    {overviewState.total_provide_liquid}
+                  </span>
+                </div>
+                <div className="mt-2 flex items-center">
+                  <span className="mr-2 tracking-tighter text-[#8A9199]">
+                    Reserve Size
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 h-[180px] w-full">
+              <div className="flex items-center justify-between">
+                <div className="mr-8 text-base tracking-tighter text-[#18191A]">
+                  Borrow apr,variable
+                </div>
+
+                <div className="flex-1 overflow-hidden rounded-lg bg-gray-100">
+                  <button
+                    className={`w-1/3 rounded-lg py-1 text-center font-medium ${
+                      activeTab === '1m'
+                        ? 'bg-white text-black'
+                        : 'text-gray-500'
+                    }`}
+                    onClick={() => handleTabClick('1m')}
+                  >
+                    1m
+                  </button>
+                  <button
+                    className={`w-1/3 rounded-lg py-1 text-center font-medium ${
+                      activeTab === '6m'
+                        ? 'bg-white text-black'
+                        : 'text-gray-500'
+                    }`}
+                    onClick={() => handleTabClick('6m')}
+                  >
+                    6m
+                  </button>
+                  <button
+                    className={`w-1/3 rounded-lg py-1 text-center font-medium ${
+                      activeTab === '1y'
+                        ? 'bg-white text-black'
+                        : 'text-gray-500'
+                    }`}
+                    onClick={() => handleTabClick('1y')}
+                  >
+                    1y
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-4 h-[150px] w-full" ref={lineChartRef}></div>
+            </div>
+
+            <button
+              className="mt-4 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
+              onClick={handleToPL}
+            >
+              Provide liquidity
+            </button>
+          </div>
+        </section>
+      </main>
     </div>
   );
-}
-
-const GettingStartedPage: NextPageWithLayout = () => {
-  return (
-    <>
-      <NextSeo
-        title="Leo Wallet | Getting Started"
-        description="How to get started using the Leo Wallet"
-      />
-      <div className="mx-auto w-full px-4 pt-8 pb-14 sm:px-6 sm:pb-20 sm:pt-12 lg:px-8 xl:px-10 2xl:px-0">
-        <h2 className="mb-6 text-lg font-medium uppercase tracking-wider text-gray-900 dark:text-white sm:mb-10 sm:text-2xl">
-          Getting Started
-        </h2>
-        <Section
-          title="STEP 1 - GET A WALLET"
-          bgColor="bg-white shadow-card dark:bg-light-dark"
-        >
-          &bull; Download and Install an Aleo compatible wallet. We recommend{' '}
-          <a href="https://demoxlabs.xyz">Leo Wallet</a>
-        </Section>
-        <Section title="STEP 2 - CREATE A NEW WALLET ACCOUNT" bgColor="">
-          &bull; Once installed - click on &quot;Create a new wallet&quot;{' '}
-          <br />
-          &bull; Type in your password <br />
-          &bull; Save the provided Secret Recovery Phrase somewhere safe and
-          finish creating your account. Never share this phrase.
-        </Section>
-        <Section
-          title="STEP 3 - CONNECT YOUR WALLET"
-          bgColor="bg-white shadow-card dark:bg-light-dark"
-        >
-          &bull; Now that you have your wallet setup with funds, connect it to
-          our site by clicking the button below <br />
-          <br />
-          <WalletMultiButton className="bg-[#154bf9]" />
-        </Section>
-        <Section title="STEP 4 - START SIGNING" bgColor="">
-          &bull; Click on the button below to start signing your first Aleo
-          messages! <br /> <br />
-          <a href={`${routes.sign}`}>
-            <Button>Start Signing</Button>
-          </a>
-        </Section>
-      </div>
-    </>
-  );
 };
 
-GettingStartedPage.getLayout = function getLayout(page) {
+HomePage.getLayout = function getLayout(page) {
   return <DashboardLayout>{page}</DashboardLayout>;
 };
-
-export default GettingStartedPage;
+export default HomePage;

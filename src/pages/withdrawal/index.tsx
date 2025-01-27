@@ -27,10 +27,12 @@ const Withdrawal: NextPageWithLayout = () => {
     }
     try {
       const provideId = 1; // provide id
-      const redeemResult = await loanContract.methods.retrieveUsdt(provideId).send({ from: account});
+      const redeemResult = await loanContract.methods
+        .retrieveUsdt(provideId)
+        .send({ from: account });
       console.log(redeemResult);
     } catch (error) {
-      console.log("fetch exchangeable error: ", error);
+      console.log('fetch exchangeable error: ', error);
     }
     router.back();
   };

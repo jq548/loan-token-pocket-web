@@ -5,59 +5,80 @@ import BackIcon from '@/assets/images/global/back-icon.png';
 import CopyIcon from '@/assets/images/global/copy-icon.png';
 import Image from '@/components/ui/image';
 import { useRouter } from 'next/router';
+import { getExchangeRecord } from '@/apis';
+import { useEffect, useState } from 'react';
 
 const ConversionHistory: NextPageWithLayout = () => {
   const router = useRouter();
-  const historyList = [
+  // const historyList = [
+  //   {
+  //     date: '2023-08-16 17:21',
+  //     quantity: '500.00',
+  //     USDTQuantity: '499.00',
+  //     exchangeRate: '1USDT=0.99 xxx',
+  //   },
+  //   {
+  //     date: '2023-08-17 17:21',
+  //     quantity: '500.00',
+  //     USDTQuantity: '499.00',
+  //     exchangeRate: '1USDT=0.99 xxx',
+  //   },
+  //   {
+  //     date: '2023-08-18 17:21',
+  //     quantity: '500.00',
+  //     USDTQuantity: '499.00',
+  //     exchangeRate: '1USDT=0.99 xxx',
+  //   },
+  //   {
+  //     date: '2023-08-19 17:21',
+  //     quantity: '500.00',
+  //     USDTQuantity: '499.00',
+  //     exchangeRate: '1USDT=0.99 xxx',
+  //   },
+  //   {
+  //     date: '2023-08-20 17:21',
+  //     quantity: '500.00',
+  //     USDTQuantity: '499.00',
+  //     exchangeRate: '1USDT=0.99 xxx',
+  //   },
+  //   {
+  //     date: '2023-08-21 17:21',
+  //     quantity: '500.00',
+  //     USDTQuantity: '499.00',
+  //     exchangeRate: '1USDT=0.99 xxx',
+  //   },
+  //   {
+  //     date: '2023-08-22 17:21',
+  //     quantity: '500.00',
+  //     USDTQuantity: '499.00',
+  //     exchangeRate: '1USDT=0.99 xxx',
+  //   },
+  //   {
+  //     date: '2023-08-23 17:21',
+  //     quantity: '500.00',
+  //     USDTQuantity: '499.00',
+  //     exchangeRate: '1USDT=0.99 xxx',
+  //   },
+  // ];
+  const [historyList, setHistoryList] = useState([
     {
-      date: '2023-08-16 17:21',
-      quantity: '500.00',
-      USDTQuantity: '499.00',
-      exchangeRate: '1USDT=0.99 xxx',
+      type: 1, // 1:lp to usdt, 2:usdt to lp
+      address: '',
+      amount: 1,
+      hash: '',
+      at: 0,
     },
-    {
-      date: '2023-08-17 17:21',
-      quantity: '500.00',
-      USDTQuantity: '499.00',
-      exchangeRate: '1USDT=0.99 xxx',
-    },
-    {
-      date: '2023-08-18 17:21',
-      quantity: '500.00',
-      USDTQuantity: '499.00',
-      exchangeRate: '1USDT=0.99 xxx',
-    },
-    {
-      date: '2023-08-19 17:21',
-      quantity: '500.00',
-      USDTQuantity: '499.00',
-      exchangeRate: '1USDT=0.99 xxx',
-    },
-    {
-      date: '2023-08-20 17:21',
-      quantity: '500.00',
-      USDTQuantity: '499.00',
-      exchangeRate: '1USDT=0.99 xxx',
-    },
-    {
-      date: '2023-08-21 17:21',
-      quantity: '500.00',
-      USDTQuantity: '499.00',
-      exchangeRate: '1USDT=0.99 xxx',
-    },
-    {
-      date: '2023-08-22 17:21',
-      quantity: '500.00',
-      USDTQuantity: '499.00',
-      exchangeRate: '1USDT=0.99 xxx',
-    },
-    {
-      date: '2023-08-23 17:21',
-      quantity: '500.00',
-      USDTQuantity: '499.00',
-      exchangeRate: '1USDT=0.99 xxx',
-    },
-  ];
+  ]);
+  const getExchangeRecordApi = async () => {
+    const res = await getExchangeRecord({
+      address: '0x301e5039A65cbf62599dD74F397B1Abdf4eAaAaf',
+    });
+    setHistoryList(res);
+  };
+
+  useEffect(() => {
+    // getExchangeRecordApi();
+  });
 
   const handlReturn = () => {
     // return back to previous page
@@ -76,16 +97,14 @@ const ConversionHistory: NextPageWithLayout = () => {
       <div>
         {historyList.map((item) => {
           return (
-            <div
-              className="mt-4 rounded-3xl bg-white py-4 px-6"
-              key={item.date}
-            >
+            <div className="mt-4 rounded-3xl bg-white py-4 px-6" key={item.at}>
               <div className="flex items-end justify-between">
                 <div className="text-xl font-bold tracking-tighter text-[#FA9825]">
-                  xxx &gt; USDT
+                  {/* xxx &gt; USDT */}
+                  {item.type === 1 ? 'ADI > USDT' : 'USDT > ADI'}
                 </div>
                 <div className="text-sm tracking-tighter text-[#5C6166]">
-                  {item.date}
+                  {item.at}
                 </div>
               </div>
               <div className="mt-2 flex items-center justify-between">
@@ -94,7 +113,7 @@ const ConversionHistory: NextPageWithLayout = () => {
                     Quantity
                   </span>
                   <span className="ml-1 text-xl font-bold tracking-tighter text-[#18191A]">
-                    {item.quantity}
+                    {item.amount}
                   </span>
                 </div>
                 <div className="flex flex-col">
@@ -102,7 +121,7 @@ const ConversionHistory: NextPageWithLayout = () => {
                     USDT quantity
                   </span>
                   <span className="ml-1 text-xl font-bold tracking-tighter text-[#18191A]">
-                    {item.USDTQuantity}
+                    {item.hash}
                   </span>
                 </div>
               </div>
@@ -111,7 +130,7 @@ const ConversionHistory: NextPageWithLayout = () => {
                   exchange rate
                 </div>
                 <div className="text-sm tracking-tighter text-[#18191A]">
-                  {item.exchangeRate}
+                  1 USDT = 1 ADI
                 </div>
               </div>
             </div>

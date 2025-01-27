@@ -19,14 +19,14 @@ const menuItems = [
     name: 'Homepage',
     href: routes.homePage,
   },
-  {
-    name: 'Pledge lending',
-    href: routes.loan,
-  },
-  {
-    name: 'Provide Liquidity',
-    href: routes.provideLiquidity,
-  },
+  // {
+  //   name: 'Pledge lending',
+  //   href: routes.loan,
+  // },
+  // {
+  //   name: 'Provide Liquidity',
+  //   href: routes.provideLiquidity,
+  // },
   {
     name: 'My Earnings',
     href: routes.myEarnings,
@@ -47,10 +47,10 @@ const menuItems = [
   //   name: 'Language',
   //   href: routes.myLoan,
   // },
-  {
-    name: 'Help',
-    href: routes.myLoan,
-  },
+  // {
+  //   name: 'Help',
+  //   href: routes.myLoan,
+  // },
   // {
   //   name: 'Sign',
   //   icon: <ExchangeIcon />,

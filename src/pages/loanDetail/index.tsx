@@ -185,12 +185,12 @@ const LoanDetails: NextPageWithLayout = () => {
           </div>
         </div>
 
-        <button
+        {/* <button
           className="mt-4 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
           onClick={openModal}
         >
           Current repayment
-        </button>
+        </button> */}
 
         <button className="mt-4 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white">
           cover positions

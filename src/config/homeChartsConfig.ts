@@ -1,8 +1,8 @@
-export const circleBarConfig = () => {
+export const circleBarConfig = (rate: number = 0) => {
   return {
     title: [
       {
-        text: '5.07%',
+        text: `${rate}%`,
         x: 'center',
         y: 'center',
         textStyle: {
@@ -43,7 +43,7 @@ export const circleBarConfig = () => {
         backgroundStyle: {
           color: '#F3F5F6',
         },
-        data: [5.07],
+        data: [rate],
         coordinateSystem: 'polar',
         itemStyle: {
           normal: {
@@ -55,7 +55,15 @@ export const circleBarConfig = () => {
   };
 };
 
-export const lineConfig = () => {
+export const lineConfig = (
+  {
+    xData,
+    seriesData,
+  }: {
+    xData: string[];
+    seriesData: number[];
+  } = { xData: [], seriesData: [] }
+) => {
   return {
     tooltip: {
       trigger: 'axis',
@@ -69,14 +77,7 @@ export const lineConfig = () => {
     xAxis: [
       {
         type: 'category',
-        data: [
-          '2019-01',
-          '2019-02',
-          '2019-03',
-          '2019-04',
-          '2019-05',
-          '2019-06',
-        ],
+        data: xData,
         axisLine: {
           show: false,
           lineStyle: {
@@ -128,7 +129,7 @@ export const lineConfig = () => {
       {
         name: 'Borrow',
         type: 'line',
-        data: [23, 60, 20, 36, 23, 85],
+        data: seriesData,
         lineStyle: {
           normal: {
             width: 3,

@@ -1,15 +1,62 @@
 import type { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
 import Image from '@/components/ui/image';
+import { loanParamsConfig } from '@/apis';
 import QuestionIcon from '@/assets/images/global/question-icon.png';
 import { useEffect, useState, FormEvent } from 'react';
 import { useWeb3 } from '@/contexts/Web3Context';
+import { useDialog } from '@/components/confirm-dialog/confirmDialog';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 const ProvideLiquidity: NextPageWithLayout = () => {
   const [index, setIndex] = useState(0);
   const [usdtBalance, setUsdtBalance] = useState(0);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
+  const [pageConfig, setPageConfig] = useState({
+    withdraw_income_fee: '1',
+    min_provide_amount: '100',
+    max_provide_amount: '10000',
+    withdraw_provide_fee: '2',
+    provide_liquid: [
+      {
+        duration: 604800,
+        days: 7,
+        estimate_week_rate: 0,
+      },
+      {
+        duration: 2592000,
+        days: 30,
+        estimate_week_rate: 0,
+      },
+      {
+        duration: 5184000,
+        days: 60,
+        estimate_week_rate: 0,
+      },
+      {
+        duration: 7776000,
+        days: 90,
+        estimate_week_rate: 0,
+      },
+      {
+        duration: 15552000,
+        days: 180,
+        estimate_week_rate: 0,
+      },
+    ],
+  });
+
+  const { isOpen, message, status, openDialog, closeDialog } = useDialog();
+
+  const handleOpenDialog = (msg: string, statusType: string = 'success') => {
+    openDialog(msg, statusType);
+  };
+
+  const getLoanParamsConfig = async () => {
+    const res = await loanParamsConfig();
+    console.log('res', res);
+  };
 
   const fetchUsdtBalance = async () => {
     if (!account) {
@@ -20,10 +67,11 @@ const ProvideLiquidity: NextPageWithLayout = () => {
     }
     try {
       const result = await usdtContract.methods.balanceOf(account).call();
-      const formattedBalance = web3.utils.fromWei(result, "ether");
+      const formattedBalance = web3.utils.fromWei(result, 'ether');
       setUsdtBalance(parseFloat(formattedBalance));
-    } catch (error) {
-      console.error("call failed: ", error);
+    } catch (error: any) {
+      handleOpenDialog(error.message as string);
+      console.error('call failed: ', error);
     }
   };
 
@@ -31,39 +79,47 @@ const ProvideLiquidity: NextPageWithLayout = () => {
     if (!web3 || !account || !usdtContract || !loanContract) {
       return;
     }
-    
-    
+
     try {
-//       const p0 = await loanContract.methods.params(0).call();
-//       const p1 = await loanContract.methods.params(1).call();
-//       const p2 = await loanContract.methods.params(2).call();
-//       const min = await loanContract.methods.params(3).call();
-//       const max = await loanContract.methods.params(4).call();
-//       console.log("p0: " + web3.utils.fromWei(p0, "ether").toString());
-//       console.log("p1: " + web3.utils.fromWei(p1, "ether").toString());
-//       console.log("p2: " + web3.utils.fromWei(p2, "ether").toString());
-//       console.log("min: " + web3.utils.fromWei(min, "ether").toString());
-//       console.log("max: " + web3.utils.fromWei(max, "ether").toString());
-// return;
+      //       const p0 = await loanContract.methods.params(0).call();
+      //       const p1 = await loanContract.methods.params(1).call();
+      //       const p2 = await loanContract.methods.params(2).call();
+      //       const min = await loanContract.methods.params(3).call();
+      //       const max = await loanContract.methods.params(4).call();
+      //       console.log("p0: " + web3.utils.fromWei(p0, "ether").toString());
+      //       console.log("p1: " + web3.utils.fromWei(p1, "ether").toString());
+      //       console.log("p2: " + web3.utils.fromWei(p2, "ether").toString());
+      //       console.log("min: " + web3.utils.fromWei(min, "ether").toString());
+      //       console.log("max: " + web3.utils.fromWei(max, "ether").toString());
+      // return;
       const value = parseFloat(input);
-      const amount = web3.utils.toWei(input, "ether");
-      const duration = (([7,30,60,90,180][index])*24*3600).toString();
-      const allowance = await usdtContract.methods.allowance(account, loanContract.options.address).call();
+      const amount = web3.utils.toWei(input, 'ether');
+      const duration = ([7, 30, 60, 90, 180][index] * 24 * 3600).toString();
+      const allowance = await usdtContract.methods
+        .allowance(account, loanContract.options.address)
+        .call();
       if (allowance < amount) {
-        const approveResult = await usdtContract.methods.approve(loanContract.options.address, amount).send({ from: account });
+        const approveResult = await usdtContract.methods
+          .approve(loanContract.options.address, amount)
+          .send({ from: account });
         console.log(approveResult);
       }
-      const exchangeResult = await loanContract.methods.provideUsdt(amount, duration).send({ from: account });
+      const exchangeResult = await loanContract.methods
+        .provideUsdt(amount, duration)
+        .send({ from: account });
       console.log(exchangeResult);
+    } catch (error) {
+      console.error('call failed: ', error);
     }
-    catch (error) {
-      console.error("call failed: ", error);
-    }
-  }
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);
   };
+
+  useEffect(() => {
+    getLoanParamsConfig();
+  }, []);
 
   useEffect(() => {
     fetchUsdtBalance();
@@ -77,7 +133,20 @@ const ProvideLiquidity: NextPageWithLayout = () => {
         </h2>
 
         <div className="mb-4 flex flex-wrap gap-2">
-          <button
+          {pageConfig.provide_liquid.map((item, i) => {
+            return (
+              <button
+                className={`w-[23%] shrink-0 rounded-xl border border-white bg-white px-3 py-4 ${
+                  index === i ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
+                }`}
+                onClick={() => setIndex(i)}
+                key={item.days}
+              >
+                {item.days}day
+              </button>
+            );
+          })}
+          {/* <button
             className={`w-[23%] shrink-0 rounded-xl border border-white bg-white px-3 py-4 ${
               index === 0 ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
             }`}
@@ -85,6 +154,7 @@ const ProvideLiquidity: NextPageWithLayout = () => {
           >
             7day
           </button>
+
           <button
             className={`w-[23%] shrink-0 rounded-xl border border-white bg-white p-3 ${
               index === 1 ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
@@ -116,7 +186,7 @@ const ProvideLiquidity: NextPageWithLayout = () => {
             onClick={() => setIndex(4)}
           >
             180day
-          </button>
+          </button> */}
         </div>
 
         <div className="mb-4 flex items-center justify-between text-sm tracking-tighter">
@@ -124,7 +194,9 @@ const ProvideLiquidity: NextPageWithLayout = () => {
             <span className="mr-2">estimate weekly interest rate</span>
             <Image width={14} height={14} src={QuestionIcon}></Image>
           </div>
-          <span className="text-[#FE4C30]">0.5%</span>
+          <span className="text-[#FE4C30]">
+            {pageConfig.provide_liquid[index].estimate_week_rate}%
+          </span>
         </div>
 
         <div className="rounded-2xl bg-white p-4 py-8 shadow-[0px_20px_50px_0px_rgba(7,17,53,0.05)]">
@@ -137,12 +209,15 @@ const ProvideLiquidity: NextPageWithLayout = () => {
               min="100"
               step="1"
               className="w-full border-0 bg-[transparent] py-2 px-3 text-[#18191A]"
-              placeholder="minimum 100USDT"
+              placeholder={`minimum ${pageConfig.min_provide_amount}USDT`}
               onChange={handleInputChange}
             />
             <div className="ml-2 flex">
               <div className="pt-2 text-[#18191A]">USDT</div>
-              <button onClick={fetchUsdtBalance} className="ml-4 rounded-lg bg-[#1EBE70] px-6 font-bold text-white">
+              <button
+                onClick={fetchUsdtBalance}
+                className="ml-4 rounded-lg bg-[#1EBE70] px-6 font-bold text-white"
+              >
                 MAX
               </button>
             </div>
@@ -179,9 +254,19 @@ const ProvideLiquidity: NextPageWithLayout = () => {
         </div>
       </div>
 
-      <button onClick={submitExchange} className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white">
+      <button
+        onClick={submitExchange}
+        className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
+      >
         Confirm
       </button>
+
+      <ConfirmDialog
+        isOpen={isOpen}
+        onClose={closeDialog}
+        message={message}
+        status={status as 'success' | 'error'}
+      />
     </div>
   );
 };
