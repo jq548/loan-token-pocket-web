@@ -3,8 +3,11 @@ import type { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
 import { getProvideRecord } from '@/apis';
 import { useRouter } from 'next/router';
+import { useWeb3 } from '@/contexts/Web3Context';
 
 const MyEarnings: NextPageWithLayout = () => {
+  const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
+
   const handleToWithdrawal = () => {
     router.push('/withdrawal');
   };
@@ -39,15 +42,18 @@ const MyEarnings: NextPageWithLayout = () => {
   });
 
   const getProvideRecordApi = async () => {
+    if (!account) {
+      return;
+    }
     const res = await getProvideRecord({
-      address: '0x301e5039A65cbf62599dD74F397B1Abdf4eAaAaf',
+      address: account,
     });
     setPageData(res);
   };
 
   useEffect(() => {
     getProvideRecordApi();
-  });
+  }, [account]);
 
   const router = useRouter();
   const handleToWithdraw = () => {

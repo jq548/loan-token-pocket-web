@@ -7,8 +7,10 @@ import Image from '@/components/ui/image';
 import { useRouter } from 'next/router';
 import { getExchangeRecord } from '@/apis';
 import { useEffect, useState } from 'react';
+import { useWeb3 } from '@/contexts/Web3Context';
 
 const ConversionHistory: NextPageWithLayout = () => {
+  const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
   const router = useRouter();
   // const historyList = [
   //   {
@@ -70,15 +72,19 @@ const ConversionHistory: NextPageWithLayout = () => {
     },
   ]);
   const getExchangeRecordApi = async () => {
+    if (!account) {
+      setHistoryList([]);
+      return;
+    }
     const res = await getExchangeRecord({
-      address: '0x301e5039A65cbf62599dD74F397B1Abdf4eAaAaf',
+      address: account,
     });
     setHistoryList(res);
   };
 
   useEffect(() => {
     getExchangeRecordApi();
-  });
+  }, [account]);
 
   const handlReturn = () => {
     // return back to previous page
