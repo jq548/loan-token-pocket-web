@@ -13,6 +13,8 @@ import { Dialog, Transition } from '@/components/ui/dialog';
 import { useWeb3 } from '@/contexts/Web3Context';
 import LoadingSpinner from '@/components/loading';
 import { useLoading } from '@/components/loading/loading';
+import { useDialog } from '@/components/confirm-dialog/confirmDialog';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 let timer: any = null;
 const Exchange: NextPageWithLayout = () => {
@@ -29,6 +31,11 @@ const Exchange: NextPageWithLayout = () => {
   const [maxExchangeableLp, setMaxExchangeableLp] = useState(0); // lp to usdt, limit by contract
   const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
   const [countDown, setCountDown] = useState(30);
+  const { isOpen, message, status, openDialog, closeDialog } = useDialog();
+
+  const handleOpenDialog = (msg: string, statusType: string = 'success') => {
+    openDialog(msg, statusType);
+  };
 
   const handleMaxClick = () => {
     setAdiQuantity('211253.32');
@@ -157,8 +164,10 @@ const Exchange: NextPageWithLayout = () => {
         maxExchangeableLpToUsdt,
         maxExchangeableUsdtToLp
       );
-    } catch (error) {
+      handleOpenDialog('Exchange successful. Check in wallet!', 'success');
+    } catch (error: any) {
       console.log('fetch exchangeable error: ', error);
+      handleOpenDialog(error.message, 'error');
     }
   };
 
@@ -174,8 +183,9 @@ const Exchange: NextPageWithLayout = () => {
         checkAmount > (lpToUsdt ? lpBalance : usdtBalance) ||
         checkAmount > (lpToUsdt ? maxExchangeableLp : maxExchangeableUsdt)
       ) {
-        console.log('exceed limit');
-        alert('Exceed limit');
+        // console.log('exceed limit');
+        // alert('Exceed limit');
+        handleOpenDialog('Exceed limit', 'error');
         closeLoading();
         return;
       }
@@ -200,9 +210,11 @@ const Exchange: NextPageWithLayout = () => {
         .send({ from: account });
       console.log(exchangeResult);
       setConfirmModal(true);
+      handleOpenDialog('Exchange successful. Check in wallet!', 'success');
       closeLoading();
     } catch (error) {
       console.log('submit error: ', error);
+      handleOpenDialog('Exchange failed. please try again!', 'error');
       closeLoading();
     }
   };
@@ -446,8 +458,13 @@ const Exchange: NextPageWithLayout = () => {
               </div>
             </Dialog>
           </Transition>
-
-          <Transition show={confirmModal} as={Fragment}>
+          <ConfirmDialog
+            isOpen={isOpen}
+            onClose={closeDialog}
+            message={message}
+            status={status as 'success' | 'error'}
+          />
+          {/* <Transition show={confirmModal} as={Fragment}>
             <Dialog
               as="div"
               className="relative z-10"
@@ -493,7 +510,7 @@ const Exchange: NextPageWithLayout = () => {
                 </div>
               </div>
             </Dialog>
-          </Transition>
+          </Transition> */}
         </div>
       </div>
       <LoadingSpinner isLoading={isLoading} />
