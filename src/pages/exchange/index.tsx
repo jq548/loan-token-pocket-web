@@ -24,7 +24,7 @@ const Exchange: NextPageWithLayout = () => {
   const [showModal, setShowModal] = useState(false);
   const { isLoading, openLoading, closeLoading } = useLoading();
   const [confirmModal, setConfirmModal] = useState(false);
-  const [usdtBalance, setUsdtBalance] = useState('');
+  const [usdtBalance, setUsdtBalance] = useState(0);
   const [lpBalance, setLpBalance] = useState(0);
   const [lpToUsdt, setLpToUsdt] = useState(true); // true: lp to usdt, false: usdt to lp
   const [maxExchangeableUsdt, setMaxExchangeableUsdt] = useState(0); // usdt to lp, limit by contract
@@ -38,8 +38,16 @@ const Exchange: NextPageWithLayout = () => {
   };
 
   const handleMaxClick = () => {
-    setAdiQuantity('211253.32');
-    setUsdtQuantity('211253.32');
+    if (lpToUsdt) {
+      const amount = maxExchangeableLp > lpBalance ? lpBalance : maxExchangeableLp;
+      setAdiQuantity(amount.toString());
+      setUsdtQuantity(amount.toString());
+    } else {
+      const amount = maxExchangeableUsdt > usdtBalance ? usdtBalance : maxExchangeableUsdt;
+      setAdiQuantity(amount.toString());
+      setUsdtQuantity(amount.toString());
+    }
+    
   };
   // get first element
   const getExchangeElement = (type: boolean) => {
@@ -53,7 +61,10 @@ const Exchange: NextPageWithLayout = () => {
           type="text"
           placeholder="Enter quantity"
           value={adiQuantity}
-          onChange={(e) => setAdiQuantity(e.target.value)}
+          onChange={(e) => {
+            setAdiQuantity(e.target.value);
+            setUsdtQuantity(e.target.value);
+          }}
           className="w-full border-0 bg-[transparent] py-2 pr-3 text-[#18191A]"
         />
       </>
@@ -67,7 +78,10 @@ const Exchange: NextPageWithLayout = () => {
           type="text"
           placeholder="Enter quantity"
           value={usdtQuantity}
-          onChange={(e) => setUsdtBalance(e.target.value)}
+          onChange={(e) => {
+            setAdiQuantity(e.target.value);
+            setUsdtQuantity(e.target.value);
+          }}
           className="w-full border-0 bg-[transparent] py-2 pr-3 text-[#18191A]"
         />
       </>
@@ -85,7 +99,10 @@ const Exchange: NextPageWithLayout = () => {
           type="text"
           placeholder="Enter quantity"
           value={usdtQuantity}
-          onChange={(e) => setUsdtBalance(e.target.value)}
+          onChange={(e) => {
+            setAdiQuantity(e.target.value);
+            setUsdtQuantity(e.target.value);
+          }}
           className="w-full border-0 bg-[transparent] py-2 pr-3 text-[#18191A]"
         />
       </>
@@ -99,7 +116,10 @@ const Exchange: NextPageWithLayout = () => {
           type="text"
           placeholder="Enter quantity"
           value={adiQuantity}
-          onChange={(e) => setAdiQuantity(e.target.value)}
+          onChange={(e) => {
+            setAdiQuantity(e.target.value);
+            setUsdtQuantity(e.target.value);
+          }}
           className="w-full border-0 bg-[transparent] py-2 pr-3 text-[#18191A]"
         />
       </>
@@ -273,7 +293,7 @@ const Exchange: NextPageWithLayout = () => {
 
           <div className="mb-16 flex items-center justify-end">
             <span className="text-xs text-[#8A9199]">Balance</span>
-            <span className="ml-1 text-sm text-[#18191A]">211253.32</span>
+            <span className="ml-1 text-sm text-[#18191A]">{lpToUsdt?lpBalance:usdtBalance}</span>
           </div>
 
           <div
@@ -315,9 +335,9 @@ const Exchange: NextPageWithLayout = () => {
 
           <div className="mb-16 flex items-center justify-end">
             <span className="text-xs text-[#8A9199]">
-              maximum exchange limit
+              Balance
             </span>
-            <span className="ml-1 text-sm text-[#18191A]">211253.32</span>
+            <span className="ml-1 text-sm text-[#18191A]">{lpToUsdt?usdtBalance:lpBalance}</span>
           </div>
 
           <div className="mb-4 flex items-center justify-between">

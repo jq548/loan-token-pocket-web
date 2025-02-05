@@ -16,6 +16,9 @@ const MyLoan: NextPageWithLayout = () => {
   };
 
   const getMyLoanList = async () => {
+    if (!account) {
+      return;
+    }
     const res = await getMyLoanInfo({
       address: account || '',
     });
@@ -26,7 +29,7 @@ const MyLoan: NextPageWithLayout = () => {
 
   useEffect(() => {
     getMyLoanList();
-  }, []);
+  }, [account]);
   return (
     <div className="h-full rounded-3xl">
       <main className="w-full max-w-screen-lg rounded-lg">
@@ -50,13 +53,13 @@ const MyLoan: NextPageWithLayout = () => {
                   </div>
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-2xl font-bold text-[#18191A]">
-                      ${item.pay_back_amount}
+                      ${item.release_amount}
                     </p>
                   </div>
                   <div className="mb-3 flex items-center justify-between">
                     <p className="mr-6 text-sm text-[#5C6166]">Contract</p>
                     <p className="text-overflow-ellipsis overflow-hidden truncate text-sm text-[#18191A]">
-                      {item.aleo_address}
+                      {item.release_hash}
                     </p>
                   </div>
                   <div className="mb-3 flex items-center justify-between">

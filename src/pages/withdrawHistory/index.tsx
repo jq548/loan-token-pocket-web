@@ -7,20 +7,26 @@ import CopyIcon from '@/assets/images/global/copy-icon.png';
 import Image from '@/components/ui/image';
 import { getProvideIncomeWithrawRecord } from '@/apis';
 import { useRouter } from 'next/router';
+import { useWeb3 } from '@/contexts/Web3Context';
 
 const WithdrawHistory: NextPageWithLayout = () => {
   const router = useRouter();
+  const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
   const [historyList, setHistoryList] = useState([
     {
       provider: '0',
       amount: '0',
       hash: '0',
       at: 0,
-    },
+    }
   ]);
   const getProvideIncomeWithrawRecordApi = async () => {
+    if (!account) {
+      setHistoryList([]);
+      return;
+    }
     const res = await getProvideIncomeWithrawRecord({
-      address: '0x301e5039A65cbf62599dD74F397B1Abdf4eAaAaf',
+      address: account,
     });
     setHistoryList(res);
   };
@@ -33,7 +39,7 @@ const WithdrawHistory: NextPageWithLayout = () => {
 
   useEffect(() => {
     getProvideIncomeWithrawRecordApi();
-  }, []);
+  }, [account]);
 
   const handlReturn = () => {
     // return back to previous page

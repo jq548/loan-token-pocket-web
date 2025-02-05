@@ -23,10 +23,10 @@ const menuItems = [
   //   name: 'Pledge lending',
   //   href: routes.loan,
   // },
-  // {
-  //   name: 'Provide Liquidity',
-  //   href: routes.provideLiquidity,
-  // },
+  {
+    name: 'Provide Liquidity',
+    href: routes.provideLiquidity,
+  },
   {
     name: 'My Earnings',
     href: routes.myEarnings,

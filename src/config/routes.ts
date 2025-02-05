@@ -1,6 +1,6 @@
 const routes = {
   homePage: '/',
-  // provideLiquidity: '/provideLiquidity',
+  provideLiquidity: '/provideLiquidity',
   myEarnings: '/myEarnings',
   rewards: '/rewards',
   conversionHistory: '/conversionHistory',
