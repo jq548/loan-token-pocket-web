@@ -142,8 +142,8 @@ const HomePage: NextPageWithLayout = () => {
                   Total supplied
                 </p>
                 <p className="mb-2 text-base font-bold tracking-tighter text-[#18191A]">
-                  ${overviewState.total_loaned} of $
-                  {overviewState.total_provide_liquid}
+                  ${Number(overviewState.total_loaned).toFixed(2)} of $
+                  {Number(overviewState.total_provide_liquid).toFixed(2)}
                 </p>
                 <p className="mb-2 text-sm tracking-tighter text-[#737980]">
                   Total Mortqaqe quantity
@@ -157,7 +157,9 @@ const HomePage: NextPageWithLayout = () => {
             <div className="flex justify-around rounded-2xl border border-[#E8EAEB] bg-[#F3F5F6] px-2 py-4">
               <div className="flex flex-col items-center justify-center">
                 <div className="text-3xl font-bold tracking-tighter text-[#FA9825]">
-                  {Number(overviewState.provide_liquid_reward_rate) * 100}
+                  {(
+                    Number(overviewState.provide_liquid_reward_rate) * 100
+                  ).toFixed(2)}
                 </div>
                 <div className="mt-2 flex items-center">
                   <span className="mr-2 tracking-tighter text-[#8A9199]">
@@ -171,7 +173,7 @@ const HomePage: NextPageWithLayout = () => {
                 <div className="flex items-start font-bold tracking-tighter text-[#18191A]">
                   <span className="text-xl">$</span>
                   <span className="text-3xl">
-                    {overviewState.total_provide_liquid}
+                    {Number(overviewState.total_provide_liquid).toFixed(2)}
                   </span>
                 </div>
                 <div className="mt-2 flex items-center">
