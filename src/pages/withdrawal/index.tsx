@@ -3,15 +3,30 @@ import type { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
 import BackIcon from '@/assets/images/global/back-icon.png';
 import Image from '@/components/ui/image';
-import { useState, Fragment } from 'react';
+import {useState, Fragment, useEffect} from 'react';
 import { useRouter } from 'next/router';
 import { Dialog, Transition } from '@/components/ui/dialog';
 import { useWeb3 } from '@/contexts/Web3Context';
+import {useDialog} from "@/components/confirm-dialog/confirmDialog";
 
 const Withdrawal: NextPageWithLayout = () => {
   const router = useRouter();
   let [isOpen, setIsOpen] = useState(false);
+  const { message, status, openDialog, closeDialog } = useDialog();
   const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
+  const [recordData, setRecordData] = useState<any>({});
+
+  useEffect(() => {
+    if (!account) {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const item = localStorage.getItem(`myEarning-${id}`);
+    const record = item ? JSON.parse(item as string) : null;
+    setRecordData(record);
+
+  }, [account])
 
   function closeModal() {
     setIsOpen(false);
@@ -20,29 +35,54 @@ const Withdrawal: NextPageWithLayout = () => {
   function openModal() {
     setIsOpen(true);
   }
-  const handlReturn = async () => {
+
+  const handleReturn = async () => {
     // return back to previous page
+    router.back();
+  };
+
+  const handleRedeem = async () => {
+    if (recordData.status == 1) {
+      openDialog('Already redeemed', 'error')
+      return ;
+    }
     if (!web3 || !account || !loanContract || !usdtContract || !lpContract) {
-      return;
+      openDialog('Please connect your wallet first!', 'error')
+      return ;
+    }
+    if (recordData.fee_rate == 0) {
+      await callRetrieve()
+    } else {
+      openModal()
+    }
+  }
+
+  const handleConfirm = async () => {
+    closeModal()
+    await callRetrieve()
+  }
+
+  const callRetrieve = async () => {
+    if (!web3 || !account || !loanContract || !usdtContract || !lpContract) {
+      return openDialog('Please connect your wallet first!', 'error');
     }
     try {
       const provideId = 1; // provide id
       const redeemResult = await loanContract.methods
-        .retrieveUsdt(provideId)
-        .send({ from: account });
+          .retrieveUsdt(provideId)
+          .send({ from: account });
       console.log(redeemResult);
     } catch (error) {
       console.log('fetch exchangeable error: ', error);
     }
-    router.back();
-  };
+  }
 
   return (
     <>
       <main className="flex h-full w-full max-w-screen-lg flex-col justify-between rounded-lg">
         <div>
           {/* return button */}
-          <div className="pointer mb-6 flex items-center" onClick={handlReturn}>
+          <div className="pointer mb-6 flex items-center" onClick={handleReturn}>
             <Image width={20} height={16} src={BackIcon}></Image>
             <span className="ml-2 text-3xl font-bold tracking-tighter text-black">
               Assets
@@ -56,7 +96,7 @@ const Withdrawal: NextPageWithLayout = () => {
               </div>
               <div className="flex items-end text-[#18191A]">
                 <span className="text-4xl font-bold tracking-tighter">
-                  5.325
+                  {recordData.amount}
                 </span>
                 <span className="ml-1 text-2xl font-bold">USDT</span>
               </div>
@@ -66,7 +106,7 @@ const Withdrawal: NextPageWithLayout = () => {
                 Real-time annualized rate
               </div>
               <div className="text-lg tracking-tighter text-[#1EBE70]">
-                4.55%
+                {recordData.rate_year}%
               </div>
             </div>
           </div>
@@ -77,7 +117,7 @@ const Withdrawal: NextPageWithLayout = () => {
                 Yesterday's annualized income
               </span>
               <span className="mt-3 text-lg font-bold text-[#18191A]">
-                +125.36
+                {recordData.yesterday_income}
               </span>
             </div>
             <div className="flex w-1/2 flex-col">
@@ -85,7 +125,7 @@ const Withdrawal: NextPageWithLayout = () => {
                 Cumulative annualized income
               </span>
               <span className="mt-3 text-lg font-bold text-[#18191A]">
-                +5.36
+                {recordData.total_income}
               </span>
             </div>
           </div>
@@ -96,7 +136,7 @@ const Withdrawal: NextPageWithLayout = () => {
                 Lock-up period
               </span>
               <span className="text-base tracking-tighter text-[#18191A]">
-                21day
+                {recordData.days}day
               </span>
             </div>
             <div className="mb-3 flex w-full justify-between">
@@ -104,7 +144,7 @@ const Withdrawal: NextPageWithLayout = () => {
                 Interest commencement date
               </span>
               <span className="text-base tracking-tighter text-[#18191A]">
-                2025/01/01
+                {recordData.income_start_day}
               </span>
             </div>
             <div className="mb-3 flex w-full justify-between">
@@ -112,7 +152,7 @@ const Withdrawal: NextPageWithLayout = () => {
                 Interest settlement date
               </span>
               <span className="text-base tracking-tighter text-[#18191A]">
-                2025/01/23
+                {recordData.income_end_day}
               </span>
             </div>
             <div className="mb-3 flex w-full justify-between">
@@ -120,14 +160,14 @@ const Withdrawal: NextPageWithLayout = () => {
                 Redemption status
               </span>
               <span className="text-base tracking-tighter text-[#18191A]">
-                NO/YES
+                {recordData.status == 1 ? 'YES' : 'NO'}
               </span>
             </div>
           </div>
         </div>
         <button
           className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
-          onClick={openModal}
+          onClick={handleRedeem}
         >
           Redeem
         </button>
@@ -173,8 +213,8 @@ const Withdrawal: NextPageWithLayout = () => {
                   </div>
 
                   <div className="mt-12 text-sm text-[#FE4C30]">
-                    <p className="">principal amount 500USDT</p>
-                    <p className="">deducted expense 500*3%=15USDT</p>
+                    <p className="">principal amount {recordData.amount}USDT</p>
+                    <p className="">deducted expense {recordData.amount}*{recordData.fee_rate*100}%={recordData.estimated_fee}USDT</p>
                   </div>
 
                   <div className="mt-16">
@@ -182,7 +222,7 @@ const Withdrawal: NextPageWithLayout = () => {
                       type="button"
                       className="flex justify-center rounded-full bg-green-600 px-4 py-2 text-xl font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       style={{ width: '100%' }}
-                      onClick={closeModal}
+                      onClick={handleConfirm}
                     >
                       Confirm
                     </button>

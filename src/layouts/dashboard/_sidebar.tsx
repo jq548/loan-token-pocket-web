@@ -35,10 +35,10 @@ const menuItems = [
     name: 'Exchange',
     href: routes.exchange,
   },
-  {
-    name: 'Rewards',
-    href: routes.rewards,
-  },
+  // {
+  //   name: 'Rewards',
+  //   href: routes.rewards,
+  // },
   {
     name: 'My loan',
     href: routes.myLoan,

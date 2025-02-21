@@ -8,8 +8,10 @@ import { useWeb3 } from '@/contexts/Web3Context';
 const MyEarnings: NextPageWithLayout = () => {
   const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
 
-  const handleToWithdrawal = () => {
-    router.push('/withdrawal');
+  const handleToWithdrawal = (record: any) => {
+    const id = record.record_id;
+    localStorage.setItem(`myEarning-${id}`, JSON.stringify(record));
+    router.push(`/withdrawal?id=${id}`);
   };
 
   const [pageData, setPageData] = useState({
@@ -18,25 +20,24 @@ const MyEarnings: NextPageWithLayout = () => {
     income_yesterday: '0',
     provide_record: [
       {
-        days: 30,
-        amount: '1000.00',
-        rate_year: '5.00',
-        total_income: '41.09',
-        duration: 2592000,
-        start: 1706169600,
+        days: 0,
+        amount: '',
+        rate_year: '',
+        total_income: '',
+        duration: 0,
+        start: 0,
         status: 0,
-        provider: '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B',
-        create_at: 1706169540,
-        create_hash:
-          '0x6c9f2f9c8e5d8b2a5e2b1f9c4f8e7d6f7b8a9e4d3f2b1c0a9d8e7f2b4d5a6c7b',
-        retrieve_at: null,
-        retrieve_hash: null,
-        record_id: 12345,
-        yesterday_income: '0.13',
-        total_income_dec: '41.095890410958904',
-        yesterday_income_dec: '0.136986301369863',
-        income_start_day: '2024-01-26',
-        income_end_day: '2024-02-25',
+        provider: '',
+        create_at: 0,
+        create_hash: '',
+        retrieve_at: 0,
+        retrieve_hash: '',
+        record_id: 0,
+        yesterday_income: '0',
+        total_income_dec: '',
+        yesterday_income_dec: '',
+        income_start_day: '',
+        income_end_day: '',
       },
     ],
   });
@@ -104,11 +105,11 @@ const MyEarnings: NextPageWithLayout = () => {
               <div
                 className="mt-4 rounded-2xl border border-[#E8EAEB] bg-white p-4 shadow-[0px_20px_50px_0px_rgba(7,17,53,0.05)]"
                 key={item.record_id}
-                onClick={handleToWithdrawal}
+                onClick={() => handleToWithdrawal(item)}
               >
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-medium tracking-tighter text-[#8A9199]">
-                    7-day locked storage
+                    {item.days}-day locked storage
                   </div>
                   <div className="text-sm font-bold tracking-tighter text-[#18191A]">
                     {item.amount}
@@ -117,7 +118,7 @@ const MyEarnings: NextPageWithLayout = () => {
                 <div className="mt-4 flex">
                   <div className="flex w-1/2 flex-col items-center justify-center">
                     <div className="text-xl font-bold tracking-tighter text-[#18191A]">
-                      {item.rate_year}
+                      {item.rate_year}%
                     </div>
                     <div className="text-sm font-medium tracking-tighter text-[#8A9199]">
                       annual interest rate

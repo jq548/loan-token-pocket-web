@@ -47,7 +47,7 @@ const Exchange: NextPageWithLayout = () => {
       setAdiQuantity(amount.toString());
       setUsdtQuantity(amount.toString());
     }
-    
+
   };
   // get first element
   const getExchangeElement = (type: boolean) => {
@@ -55,7 +55,7 @@ const Exchange: NextPageWithLayout = () => {
       <>
         <Image src={ADIIcon} width={36} height={36} />
         <span className="flex border-r border-[#DFE7EB] pl-2 pr-4 text-base text-[#18191A]">
-          ADI
+          DINAR
         </span>
         <input
           type="text"
@@ -110,7 +110,7 @@ const Exchange: NextPageWithLayout = () => {
       <>
         <Image src={ADIIcon} width={36} height={36} />
         <span className="flex border-r border-[#DFE7EB] pl-2 pr-4 text-base text-[#18191A]">
-          ADI
+          DINAR
         </span>
         <input
           type="text"
@@ -184,7 +184,6 @@ const Exchange: NextPageWithLayout = () => {
         maxExchangeableLpToUsdt,
         maxExchangeableUsdtToLp
       );
-      handleOpenDialog('Exchange successful. Check in wallet!', 'success');
     } catch (error: any) {
       console.log('fetch exchangeable error: ', error);
       handleOpenDialog(error.message, 'error');
@@ -273,7 +272,7 @@ const Exchange: NextPageWithLayout = () => {
           <div className="mb-2 flex items-center rounded-xl border border-[#E8EAEB] bg-[#F3F5F6] p-1 pl-2">
             {/* <Image src={ADIIcon} width={36} height={36} />
           <span className="flex border-r border-[#DFE7EB] pl-2 pr-4 text-base text-[#18191A]">
-            ADI
+            DINAR
           </span> */}
             {getExchangeElement(lpToUsdt)}
             {/* <input
@@ -349,7 +348,7 @@ const Exchange: NextPageWithLayout = () => {
                 1 : 1
               </span>
             </div>
-            <div className="text-xs text-[#8A9199]">1 USDT = 1 ADI</div>
+            <div className="text-xs text-[#8A9199]">1 USDT = 1 DINAR</div>
           </div>
 
           <button
@@ -407,7 +406,7 @@ const Exchange: NextPageWithLayout = () => {
                           <div className="mr-4 flex  flex-1 flex-col items-end">
                             <div className="mb-2 flex items-center">
                               <span className="mr-1 text-base text-[#18191A]">
-                                ADI
+                                DINAR
                               </span>
                               <Image
                                 src={ADIIcon}
@@ -452,7 +451,7 @@ const Exchange: NextPageWithLayout = () => {
                           </span>
                         </div>
                         <div className="text-xs text-[#8A9199]">
-                          1 USDT = 1 ADI
+                          1 USDT = 1 DINAR
                         </div>
                       </div>
 

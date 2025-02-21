@@ -8,6 +8,8 @@ import Image from '@/components/ui/image';
 import { getProvideIncomeWithrawRecord } from '@/apis';
 import { useRouter } from 'next/router';
 import { useWeb3 } from '@/contexts/Web3Context';
+import dayjs from "dayjs";
+import { getShowAddress } from "@/utils/getStatusLabel";
 
 const WithdrawHistory: NextPageWithLayout = () => {
   const router = useRouter();
@@ -28,7 +30,7 @@ const WithdrawHistory: NextPageWithLayout = () => {
     const res = await getProvideIncomeWithrawRecord({
       address: account,
     });
-    setHistoryList(res);
+    setHistoryList(res ?? []);
   };
 
   const handleCopy = (hash: string) => {
@@ -56,14 +58,14 @@ const WithdrawHistory: NextPageWithLayout = () => {
         </span>
       </div>
       <div>
-        {historyList.map((item) => {
+        {historyList.length && historyList.map((item) => {
           return (
             <div
               className="mt-4 rounded-3xl bg-white py-4 px-6"
               key={item.hash}
             >
               <div className="text-sm tracking-tighter text-[#18191A]">
-                {item.at}
+                {dayjs.unix(item.at).format("YYYY-MM-DD")}
               </div>
               <div className="mt-1 flex items-end font-bold text-[#18191A]">
                 <span className="text-2xl">{item.amount}</span>
@@ -75,13 +77,13 @@ const WithdrawHistory: NextPageWithLayout = () => {
                 </div>
                 <div>
                   <span className="mr-1 text-sm tracking-tighter text-[#18191A]">
-                    {item.provider}
+                    {getShowAddress(item.hash)}
                   </span>
                   <Image
                     width={12}
                     height={12}
                     src={CopyIcon}
-                    onClick={() => handleCopy(item.provider)}
+                    onClick={() => handleCopy(item.hash)}
                   ></Image>
                 </div>
               </div>

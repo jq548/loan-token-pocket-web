@@ -11,6 +11,7 @@ import { useWeb3 } from '@/contexts/Web3Context';
 
 const Withdraw: NextPageWithLayout = () => {
   const [releaseableIncome, setReleaseableIncome] = useState(0);
+  const [feeAmount, setFeeAmount] = useState(0);
   const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
 
   const router = useRouter();
@@ -38,6 +39,9 @@ const Withdraw: NextPageWithLayout = () => {
       const result = await loanContract.methods.releaseAbleLiquidReward(account).call();
       const amount = web3.utils.fromWei(result, "ether");
       setReleaseableIncome(parseFloat(amount));
+      const fee = await loanContract.methods.params(2).call();
+      const feeAmount = web3.utils.fromWei(fee, "ether");
+      setFeeAmount(parseFloat(feeAmount));
       console.log("release able amount: ", amount);
     } catch (error) {
       console.error("call failed: ", error);
@@ -80,7 +84,7 @@ const Withdraw: NextPageWithLayout = () => {
 
         <div className="mb-8 flex items-end justify-between">
           <div className="flex items-end text-[#18191A]">
-            <span className="text-4xl font-bold tracking-tighter">{releaseableIncome}</span>
+            <span className="text-4xl font-bold tracking-tighter">{Math.floor(releaseableIncome * 10000) / 10000}</span>
             <span className="ml-1 text-2xl font-bold">USDT</span>
           </div>
           <div>
@@ -102,7 +106,7 @@ const Withdraw: NextPageWithLayout = () => {
               step="1"
               className="w-full border-0 bg-[transparent] py-2 px-3 text-2xl text-[#B8C2CC]"
               placeholder="0.0"
-              value={releaseableIncome}
+              value={Math.floor(releaseableIncome * 10000) / 10000}
             />
           </div>
           <button onClick={fetchReleaseableIncome} className="ml-4 rounded-lg bg-[#1EBE70] px-6 font-bold text-white">
@@ -112,7 +116,7 @@ const Withdraw: NextPageWithLayout = () => {
 
         <div className="mb-8 flex items-center text-sm tracking-tighter">
           <span className="text-[#18191A]">Actual amount received</span>
-          <span className="text-[#FE4C30]">4.5USDT</span>
+          <span className="text-[#FE4C30]">{Math.floor(releaseableIncome * 10000) / 10000 - feeAmount}USDT</span>
         </div>
 
         <div className="text-sm tracking-tighter text-[#18191A]">

@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { getExchangeRecord } from '@/apis';
 import { useEffect, useState } from 'react';
 import { useWeb3 } from '@/contexts/Web3Context';
+import dayjs from "dayjs";
 
 const ConversionHistory: NextPageWithLayout = () => {
   const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
@@ -110,13 +111,13 @@ const ConversionHistory: NextPageWithLayout = () => {
                   {item.type === 1 ? 'ADI > USDT' : 'USDT > ADI'}
                 </div>
                 <div className="text-sm tracking-tighter text-[#5C6166]">
-                  {item.at}
+                  {dayjs.unix(item.at).format("YYYY-MM-DD")}
                 </div>
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <div className="flex flex-col">
                   <span className="text-base tracking-tighter text-[#8A9199]">
-                    Quantity
+                    DINAR Quantity
                   </span>
                   <span className="ml-1 text-xl font-bold tracking-tighter text-[#18191A]">
                     {item.amount}
@@ -127,7 +128,7 @@ const ConversionHistory: NextPageWithLayout = () => {
                     USDT quantity
                   </span>
                   <span className="ml-1 text-xl font-bold tracking-tighter text-[#18191A]">
-                    {item.hash}
+                    {item.amount}
                   </span>
                 </div>
               </div>
