@@ -108,7 +108,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         buttonColorClassNames = `${colorClassNames[0]} ${
           disabled || isLoading
             ? ''
-            : 'hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800'
+            : ''
         } `;
         buttonDripColor = 'rgba(0, 0, 0, 0.1)';
         break;

@@ -126,7 +126,7 @@ const MyEarnings: NextPageWithLayout = () => {
                   </div>
                   <div className="flex w-1/2 flex-col items-center justify-center">
                     <div className="text-xl font-bold tracking-tighter text-[#18191A]">
-                      {item.total_income}
+                      {Number(item.total_income).toFixed(3)}
                     </div>
                     <div className="text-sm font-medium tracking-tighter text-[#8A9199]">
                       cumulative income

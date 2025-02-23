@@ -122,7 +122,7 @@ export default function Sidebar({ className }: SidebarProps) {
             size="small"
             onClick={closeDrawer}
           >
-            <Close className="h-auto w-2.5" />
+            <Close className="h-auto w-2.5 text-[#000]" />
           </Button>
         </div>
       </div>

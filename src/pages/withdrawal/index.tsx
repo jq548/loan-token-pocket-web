@@ -3,16 +3,23 @@ import type { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
 import BackIcon from '@/assets/images/global/back-icon.png';
 import Image from '@/components/ui/image';
-import {useState, Fragment, useEffect} from 'react';
+import { useState, Fragment, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Dialog, Transition } from '@/components/ui/dialog';
 import { useWeb3 } from '@/contexts/Web3Context';
-import {useDialog} from "@/components/confirm-dialog/confirmDialog";
+import { useDialog } from '@/components/confirm-dialog/confirmDialog';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 const Withdrawal: NextPageWithLayout = () => {
   const router = useRouter();
   let [isOpen, setIsOpen] = useState(false);
-  const { message, status, openDialog, closeDialog } = useDialog();
+  const {
+    isOpen: isDialogOpen,
+    message,
+    status,
+    openDialog,
+    closeDialog,
+  } = useDialog();
   const { web3, account, usdtContract, lpContract, loanContract } = useWeb3();
   const [recordData, setRecordData] = useState<any>({});
 
@@ -21,12 +28,11 @@ const Withdrawal: NextPageWithLayout = () => {
       return;
     }
     const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
+    const id = params.get('id');
     const item = localStorage.getItem(`myEarning-${id}`);
     const record = item ? JSON.parse(item as string) : null;
     setRecordData(record);
-
-  }, [account])
+  }, [account]);
 
   function closeModal() {
     setIsOpen(false);
@@ -43,24 +49,24 @@ const Withdrawal: NextPageWithLayout = () => {
 
   const handleRedeem = async () => {
     if (recordData.status == 1) {
-      openDialog('Already redeemed', 'error')
-      return ;
+      openDialog('Already redeemed', 'error');
+      return;
     }
     if (!web3 || !account || !loanContract || !usdtContract || !lpContract) {
-      openDialog('Please connect your wallet first!', 'error')
-      return ;
+      openDialog('Please connect your wallet first!', 'error');
+      return;
     }
     if (recordData.fee_rate == 0) {
-      await callRetrieve()
+      await callRetrieve();
     } else {
-      openModal()
+      openModal();
     }
-  }
+  };
 
   const handleConfirm = async () => {
-    closeModal()
-    await callRetrieve()
-  }
+    closeModal();
+    await callRetrieve();
+  };
 
   const callRetrieve = async () => {
     if (!web3 || !account || !loanContract || !usdtContract || !lpContract) {
@@ -69,20 +75,23 @@ const Withdrawal: NextPageWithLayout = () => {
     try {
       const provideId = 1; // provide id
       const redeemResult = await loanContract.methods
-          .retrieveUsdt(provideId)
-          .send({ from: account });
+        .retrieveUsdt(provideId)
+        .send({ from: account });
       console.log(redeemResult);
     } catch (error) {
       console.log('fetch exchangeable error: ', error);
     }
-  }
+  };
 
   return (
     <>
       <main className="flex h-full w-full max-w-screen-lg flex-col justify-between rounded-lg">
         <div>
           {/* return button */}
-          <div className="pointer mb-6 flex items-center" onClick={handleReturn}>
+          <div
+            className="pointer mb-6 flex items-center"
+            onClick={handleReturn}
+          >
             <Image width={20} height={16} src={BackIcon}></Image>
             <span className="ml-2 text-3xl font-bold tracking-tighter text-black">
               Assets
@@ -214,7 +223,11 @@ const Withdrawal: NextPageWithLayout = () => {
 
                   <div className="mt-12 text-sm text-[#FE4C30]">
                     <p className="">principal amount {recordData.amount}USDT</p>
-                    <p className="">deducted expense {recordData.amount}*{recordData.fee_rate*100}%={recordData.estimated_fee}USDT</p>
+                    <p className="">
+                      deducted expense {recordData.amount}*
+                      {recordData.fee_rate * 100}%={recordData.estimated_fee}
+                      USDT
+                    </p>
                   </div>
 
                   <div className="mt-16">
@@ -233,6 +246,12 @@ const Withdrawal: NextPageWithLayout = () => {
           </div>
         </Dialog>
       </Transition>
+      <ConfirmDialog
+        isOpen={isDialogOpen}
+        onClose={closeDialog}
+        message={message}
+        status={status as 'success' | 'error'}
+      />
     </>
   );
 };
