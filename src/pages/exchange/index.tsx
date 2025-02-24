@@ -160,29 +160,29 @@ const Exchange: NextPageWithLayout = () => {
       const lpBalance = web3.utils.fromWei(lpBalanceResult, 'ether');
       setLpBalance(parseFloat(lpBalance));
 
-      const maxExchangeableLpToUsdtResult = await loanContract.methods
-        .maxExchangeLpUsdt(true)
+      const maxExchangeableDinarToUsdtResult = await loanContract.methods
+        .maxExchangeDinarUsdt(true)
         .call();
-      const maxExchangeableLpToUsdt = web3.utils.fromWei(
-        maxExchangeableLpToUsdtResult,
+      const maxExchangeableDinarToUsdt = web3.utils.fromWei(
+          maxExchangeableDinarToUsdtResult,
         'ether'
       );
-      setMaxExchangeableLp(parseFloat(maxExchangeableLpToUsdt));
+      setMaxExchangeableLp(parseFloat(maxExchangeableDinarToUsdt));
 
-      const maxExchangeableUsdtToLpResult = await loanContract.methods
-        .maxExchangeLpUsdt(false)
+      const maxExchangeableUsdtToDinarResult = await loanContract.methods
+        .maxExchangeDinarUsdt(false)
         .call();
-      const maxExchangeableUsdtToLp = web3.utils.fromWei(
-        maxExchangeableUsdtToLpResult,
+      const maxExchangeableUsdtToDinar = web3.utils.fromWei(
+          maxExchangeableUsdtToDinarResult,
         'ether'
       );
-      setMaxExchangeableUsdt(parseFloat(maxExchangeableUsdtToLp));
+      setMaxExchangeableUsdt(parseFloat(maxExchangeableUsdtToDinar));
       console.log(
-        'fetch complete: ',
-        usdtBalance,
-        lpBalance,
-        maxExchangeableLpToUsdt,
-        maxExchangeableUsdtToLp
+          'fetch complete: ',
+          usdtBalance,
+          lpBalance,
+          maxExchangeableDinarToUsdt,
+          maxExchangeableUsdtToDinar
       );
     } catch (error: any) {
       console.log('fetch exchangeable error: ', error);
@@ -225,7 +225,7 @@ const Exchange: NextPageWithLayout = () => {
         console.log(approveResult);
       }
       const exchangeResult = await loanContract.methods
-        .exchangeLpUsdt(lpToUsdt, amount)
+        .exchangeDinarUsdt(lpToUsdt, amount)
         .send({ from: account });
       console.log(exchangeResult);
       setConfirmModal(true);
