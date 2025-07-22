@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'https://wings.tcds.ltd',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE,
   headers: {
     'Content-Type': 'application/json',
   },
